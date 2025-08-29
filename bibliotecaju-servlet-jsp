@@ -1,0 +1,153 @@
+package com.biblioteca.model;
+
+public class Livro {
+    private String titulo;
+    private String autor;
+    private int anoPublicacao;
+
+    public Livro(String titulo, String autor, int anoPublicacao) {
+        this.titulo = titulo;
+        this.autor = autor;
+        this.anoPublicacao = anoPublicacao;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getAutor() {
+        return autor;
+    }
+
+    public void setAutor(String autor) {
+        this.autor = autor;
+    }
+
+    public int getAnoPublicacao() {
+        return anoPublicacao;
+    }
+
+    public void setAnoPublicacao(int anoPublicacao) {
+        this.anoPublicacao = anoPublicacao;
+    }
+}
+package com.biblioteca.servlet;
+
+import com.biblioteca.model.Livro;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+@WebServlet("/livros")
+public class LivroServlet extends HttpServlet {
+    private List<Livro> livros = new ArrayList<>();
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String titulo = request.getParameter("titulo");
+        String autor = request.getParameter("autor");
+        int ano = Integer.parseInt(request.getParameter("ano"));
+
+        Livro livro = new Livro(titulo, autor, ano);
+        livros.add(livro);
+
+        request.setAttribute("livros", livros);
+        request.getRequestDispatcher("listagem.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setAttribute("livros", livros);
+        request.getRequestDispatcher("listagem.jsp").forward(request, response);
+    }
+}
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+         https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
+
+    <display-name>Biblioteca</display-name>
+
+    <servlet>
+        <servlet-name>LivroServlet</servlet-name>
+        <servlet-class>com.biblioteca.servlet.LivroServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>LivroServlet</servlet-name>
+        <url-pattern>/livros</url-pattern>
+    </servlet-mapping>
+</web-app>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Biblioteca</title>
+</head>
+<body>
+    <h1>Bem-vindo à Biblioteca</h1>
+    <a href="cadastro.jsp">Cadastrar novo livro</a><br>
+    <a href="livros">Listar livros cadastrados</a>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cadastro de Livro</title>
+</head>
+<body>
+    <h1>Cadastrar Livro</h1>
+    <form action="livros" method="post">
+        Título: <input type="text" name="titulo"><br>
+        Autor: <input type="text" name="autor"><br>
+        Ano de Publicação: <input type="number" name="ano"><br>
+        <button type="submit">Cadastrar</button>
+    </form>
+    <br>
+    <a href="index.jsp">Voltar</a>
+</body>
+</html>
+<%@ page import="com.biblioteca.model.Livro" %>
+<%@ page import="java.util.List" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Listagem de Livros</title>
+</head>
+<body>
+    <h1>Livros cadastrados</h1>
+    <table border="1">
+        <tr>
+            <th>Título</th>
+            <th>Autor</th>
+            <th>Ano</th>
+        </tr>
+        <%
+            List<Livro> livros = (List<Livro>) request.getAttribute("livros");
+            if (livros != null) {
+                for (Livro l : livros) {
+        %>
+        <tr>
+            <td><%= l.getTitulo() %></td>
+            <td><%= l.getAutor() %></td>
+            <td><%= l.getAnoPublicacao() %></td>
+        </tr>
+        <%
+                }
+            }
+        %>
+    </table>
+    <br>
+    <a href="cadastro.jsp">Cadastrar novo livro</a>
+</body>
+</html>
